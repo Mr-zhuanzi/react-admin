@@ -8,7 +8,7 @@ import {
 } from 'antd';
 // 放在import下面不然报错
  const Item = Form.Item;
- class LocginForm extends Component {
+  class LocginForm extends Component {
   render() {
     return (
       <Form className="login-form-container" >
@@ -25,3 +25,6 @@ import {
     )
   }
 }
+//
+const WrappedLoginForm = Form.create()(LocginForm);
+export default WrappedLoginForm;
