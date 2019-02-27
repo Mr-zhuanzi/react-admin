@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {
   Form,
   Icon,
@@ -6,15 +7,57 @@ import {
   Button,
   message
 } from 'antd';
+import {reqLogin}from '../../api/index'
 // 放在import下面不然报错
    const Item = Form.Item;
   class LocginForm extends Component {
+    static propTypes = {
+      login: PropTypes.func.isRequired
+    }
+    checkPassword =(rule,value,callback) =>{
+      if(!value){
+        callback('必须输入密码');
+      }else if(value.length < 4){
+        callback('密码长度必须超过4位');
+      }else if(value.length>11){
+        callback('密码长度不能超过11位');
+      }else if(!(/^[a-zA-Z0-9_]+$/.test(value))){
+        callback('密码只能包含大小写英文、数字或者下划线')
+      }else{
+        // 通过
+        callback();
+      }
+  }
+
+  handleSubmit = e =>{
+      e.preventDefault();
+      // 检验当前表单是否通过
+    const {resetFields,validateFields} = this.props.form;
+      validateFields(async (error,values)=>{
+      if(!error){
+// 通过
+        console.log('收集的表单数据：', values);
+        const {username, password} = values;
+        // 调用父组件login的方法，由父组件发送登录请求
+        this.props.login(username,password)
+
+      }else{
+// 重置密码
+        resetFields(['password']);
+
+        // 收集错误信息
+        const errMsg = Object.values(error).reduce((prev, curr) => prev + curr.errors[0].message + ' ', '')
+        // 提示错误
+        message.error('errMsg');
+      }
+      })
+  }
+
   render() {
     const { getFieldDecorator,getFieldValue } = this.props.form;
     // console.log(getFieldValue('username'));
-
     return (
-      <Form className="login-form-container" >
+      <Form className="login-form-container" onSubmit={this.handleSubmit} >
         <Item>
           {
             //getFieldDecorator(輸入框標示名稱)
@@ -22,38 +65,32 @@ import {
             getFieldDecorator(
               'username',
               {
-                rules: [
+                rules:
+                  [
                   { required: true, message: '请输入您的名字' },
-                  {min:4,message:'用户名必须大于4位'},
+                  {min:4,message:'用户名必须大于或者等于4位'},
                   {max:10,message:'用户名最大10位'},
-                  {pattern:/^a-zA-Z0-9_$/,message:'用户名必须是大小写英文，数字，下划线'}
-
+                  {pattern:/^[a-zA-Z0-9_]+$/,message:'用户名必须是大小写英文,数字,下划线'}
                   ],
-
-              }
-            )(<Input   prefix={<Icon type="user" />} placeholder="请输入您的账号" />)
+                 }
+            )(<Input prefix={<Icon type="user" />} placeholder="请输入您的账号" />)
           }
         </Item>
         <Item>
           {
             getFieldDecorator(
               'password',
-
               {
-                rules: [
-                  { required: true, message: '请输入您的密码' },
-                  {min:8,message:'密码必须大于8位'},
-                  {max:20,message:'密码最大20位'},
-                  {pattern:/^a-zA-Z0-9_$/,message:'密码必须是大小写英文，数字，下划线'}
+                rules:
+                  [
+                    {validator:this.checkPassword},
                   ],
-
               }
-            )( <Input   prefix={<Icon type="safety" />} placeholder="请输入您的密码" />)
+            )( <Input type="password"  prefix={<Icon type="safety" />} placeholder="请输入您的密码" />)
           }
-
         </Item>
         <Item>
-          <Button className="login-form-button">登录</Button>
+          <Button type='primary' htmlType='submit' className="login-form-button">登录</Button>
         </Item>
       </Form>
     )

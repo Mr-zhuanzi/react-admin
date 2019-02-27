@@ -1,9 +1,28 @@
 import React, {Component} from 'react';
+
 import LoginForm from '../../components/login-form';
+import {reqLogin} from  "../../api"
+
 import logo from './logo.png';
 import './index.less';
 
+
 export default class Login extends Component {
+  login = async(username,password)=>{
+// 发送请求
+    const result = await reqLogin(username,password)
+    console.log(result)
+    if(result.status ===0){
+      // 用户登录成功
+      //跳转到admin页面
+      this.props.history.replace('/');
+      // 保存用户信息
+      // 跳转到admin页面
+    }else{
+      // 用户登录失败
+      // 提示错误信息
+    }
+  }
   render() {
     return (
       <div className="login">
@@ -13,7 +32,7 @@ export default class Login extends Component {
        </header>
         <section className="login-form" >
           <h2>用户登录</h2>
-          <LoginForm/>
+          <LoginForm login={this.login} />
         </section>
       </div>
     )
