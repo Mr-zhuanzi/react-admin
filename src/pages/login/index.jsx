@@ -11,7 +11,6 @@ export default class Login extends Component {
   login = async(username,password)=>{
 // 发送请求
     const result = await reqLogin(username,password)
-    console.log(result)
     if(result.status ===0){
       // 用户登录成功
       //跳转到admin页面
@@ -21,6 +20,10 @@ export default class Login extends Component {
     }else{
       // 用户登录失败
       // 提示错误信息
+
+      this.setState({
+        errMsg: result.msg
+      })
     }
   }
   render() {
